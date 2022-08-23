@@ -1,0 +1,4 @@
+firebase-admin
+django-firebase-orm
+grpcio
+djangorestframework

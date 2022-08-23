@@ -1,0 +1,5 @@
+config.py
+db.sqlite3
+goods_db_api.log
+__pycache__/
+fireapp/goods-gazer-firebase-adminsdk.json
