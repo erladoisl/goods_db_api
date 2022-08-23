@@ -1,28 +1,55 @@
 import logging
+import traceback
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from fireapp.serializer import to_representation
-from .models import Good
+from rest_framework.permissions import IsAuthenticated
+from .models import Good, Link
+from .util import filter_objects, to_representation
 
 
 class GoodsView(APIView):
+    permission_classes = [IsAuthenticated, ]
+
     def get(self, request, *args, **kwargs):
-        user_uid = request.GET.get('user_id', '')
-        res = {}
-        logging.info(f'Getting goods by user uid: {user_uid}')
+        error = False
+        user_uid = request.GET.get('user_uid', '')
+        logging.info(f'Getting goods by user uid: {type(user_uid)}')
 
-        if len(user_uid) > 0:
-            try:
-                res = Good.objects.get(user_uid=user_uid)
-            except:
-                logging.info(f'Goods not found by user uid: {user_uid}')
-                goods = []
-        else:
-            goods = Good.objects.all()
+        try:
+            if len(user_uid) > 0:
+                try:
+                    goods = filter_objects(Good.objects.all(), {'user_uid': user_uid})
+                except:
+                    logging.info(f'Goods not found by user uid: {user_uid}')
+                    goods = []
+                    error = True
+            else:
+                goods = Good.objects.all()
 
-        res = to_representation(goods)
+            goods_json = to_representation(goods)
+        except:
+            logging.error(
+                f'Error while getting goods\n{traceback.format_exc()}')
+            goods_json = []
+            error = True
+        finally: 
+            return Response(data={'error': error,
+                                  'data': goods_json})
 
-        return Response(data=res)
 
-    def post(self, req, *args, **kwargs):
-        return Response(data={'GoodsView post'})
+class LinksView(APIView):
+    permission_classes = [IsAuthenticated, ]
+
+    def get(self, request, *args, **kwargs):
+        error = False
+
+        try:
+            links = to_representation(Link.objects.all())
+        except:
+            logging.error(
+                f'Error while getting links\n{traceback.format_exc()}')
+            links = []
+            error = True
+        finally: 
+            return Response(data={'error': error,
+                                  'data': links})
