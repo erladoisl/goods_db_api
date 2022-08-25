@@ -3,7 +3,7 @@ import traceback
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .models import Good, Link
+from .models import Folder, Good, Link, Price
 from .util import filter_objects, to_representation
 
 
@@ -53,3 +53,38 @@ class LinksView(APIView):
         finally: 
             return Response(data={'error': error,
                                   'data': links})
+
+
+class PricesView(APIView):
+    permission_classes = [IsAuthenticated, ]
+
+    def get(self, request, *args, **kwargs):
+        error = False
+
+        try:
+            prices = to_representation(Price.objects.all())
+        except:
+            logging.error(
+                f'Error while getting prices\n{traceback.format_exc()}')
+            prices = []
+            error = True
+        finally: 
+            return Response(data={'error': error,
+                                  'data': prices})
+
+class FoldersView(APIView):
+    permission_classes = [IsAuthenticated, ]
+
+    def get(self, request, *args, **kwargs):
+        error = False
+
+        try:
+            prices = to_representation(Folder.objects.all())
+        except:
+            logging.error(
+                f'Error while getting folders\n{traceback.format_exc()}')
+            prices = []
+            error = True
+        finally: 
+            return Response(data={'error': error,
+                                  'data': prices})

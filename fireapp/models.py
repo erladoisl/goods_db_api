@@ -35,4 +35,16 @@ class Price(models.Model):
         db_table = 'prices'
 
     def __str__(self):
-        return self.price
+        return str(self.price)
+
+
+class Folder(models.Model):
+    name = models.TextField()
+    parent_id = models.TextField()
+    user_uid = models.FloatField()
+
+    class Meta:
+        db_table = 'folder'
+
+    def __str__(self):
+        return self.name
